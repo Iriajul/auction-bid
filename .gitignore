@@ -1,0 +1,192 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.DS_Store
+.eggs/
+scripts/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+.env/
+
+# Django specific
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+
+# Media and static files
+/media/
+
+# Coverage reports
+.coverage
+*.cover
+*.hypothesis/
+.nox/
+*.tox/
+*.coverage.*
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Environment variables
+.env
+*.env
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Celery files
+celerybeat-schedule
+celeryd.pid
+
+# MySQL/MariaDB
+*.err
+*.pid
+
+# Python bytecode files
+*.pyc
+
+# Temporary files
+*.bak
+*.swp
+*.swo
+
+# CSV
+*.csv
+
+# static files
+/static/
+/staticfiles/
+
+
+
+######new git ignore#####
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.DS_Store
+.eggs/
+scripts/
+
+
+# Migrations
+apps/*/migrations/*.py
+!apps/*/migrations/__init__.py
+# Migrations
+apps/*/migrations/
+
+
+# Settings
+config/settings.py
+
+
+# Data files
+backup_data.json
+data_clean.json
+*.json
+
+
+
+# Virtual Environment
+venv/
+env/
+.venv/
+.env/
+
+
+# Django specific
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+db.sqlite3
+
+
+# Media and static files
+/media/
+
+
+# Coverage reports
+.coverage
+*.cover
+*.hypothesis/
+.nox/
+*.tox/
+*.coverage.*
+
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+
+# Environment variables
+.env
+*.env
+
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+
+# Celery files
+celerybeat-schedule
+celeryd.pid
+
+
+# MySQL/MariaDB
+*.err
+*.pid
+
+
+# Python bytecode files
+*.pyc
+
+
+# Temporary files
+*.bak
+*.swp
+*.swo
+
+
+# CSV
+*.csv
+
+
+# static files
+/static/
+/staticfiles/*.json
+firebase-adminsdk*.json
+mohmt-f7d7c-firebase-adminsdk-fbsvc-859f537833.json

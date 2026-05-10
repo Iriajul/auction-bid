@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Auction Live Users Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        input,
+        button {
+            padding: 6px;
+            margin: 5px;
+            width: 90%;
+        }
+
+        button {
+            width: auto;
+            cursor: pointer;
+        }
+
+        .panel {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #f8f8f8;
+        }
+
+        #log {
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background: #f4f4f4;
+            font-size: 13px;
+        }
+
+        pre {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>🔥 Auction Live Users Test</h2>
+
+    <div>
+        <label>Socket URL:</label>
+        <input type="text" id="socketUrl" value="wss://mohmt.badhonbarman.com">
+    </div>
+
+    <div>
+        <label>JWT Token:</label>
+        <input type="text" id="token" size="120"
+            value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcxMTA4MzQ1LCJpYXQiOjE3NzExMDQ3NDUsImp0aSI6IjRlNTBmOTZmMWM3NTQxMmNiMzk0NzRkZjc4N2MyNjVkIiwidXNlcl9pZCI6IjE1In0.B85DnC3SpozK8Sg8hPoWMGW3HRop7iq6yd0xrmaAkbs">
+    </div>
+
+    <div>
+        <label>Auction ID:</label>
+        <input type="text" id="auctionId" value="191">
+    </div>
+
+    <button onclick="connectSocket()">Connect</button>
+    <button onclick="disconnectSocket()">Disconnect</button>
+    <button onclick="clearLog()">Clear Log</button>
+    <button onclick="joinAuction()">🎯 Join Auction</button>
+    <button onclick="requestLiveUsers()">📩 Live Bid Users</button>
+    <button onclick="runTestSequence()" style="background-color: #e7f3fe; border: 1px solid #2196F3; color: #2196F3;">🚀
+        Run Full Test</button>
+
+    <div class="panel">
+        <h3>📦 Auction State</h3>
+        <div id="auctionState">Waiting...</div>
+    </div>
+
+    <div class="panel">
+        <h3>👥 Live Bid Users</h3>
+        <div id="liveUsers">Waiting...</div>
+    </div>
+
+    <div class="panel">
+        <h3>📜 Logs</h3>
+        <div id="log"></div>
+    </div>
+
+    <script>
+        let socket = null;
+
+        function log(msg) {
+            const logDiv = document.getElementById("log");
+            logDiv.innerHTML += `<div>${new Date().toLocaleTimeString()} - ${msg}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById("log").innerHTML = "";
+        }
+
+        function connectSocket() {
+            const url = document.getElementById("socketUrl").value;
+            let token = document.getElementById("token").value;
+            if (token.startsWith("Bearer ")) token = token.substring(7);
+
+            socket = io(url, {
+                auth: { token },
+                transports: ["websocket"],
+                reconnection: true,
+            });
+
+            socket.on("connect", () => {
+                log("✅ Connected: " + socket.id);
+
+                // Universal debug
+                socket.onAny((event, ...args) => {
+                    log(`🔥 Event → ${event}`);
+                });
+
+                // Auction state listener
+                socket.on("auction_state", (data) => {
+                    document.getElementById("auctionState").innerHTML =
+                        "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+                    log("📦 auction_state received");
+                });
+
+                // Live bid users listener (matches your Python test)
+                socket.on("live_bid_users_response", (data) => {
+                    document.getElementById("liveUsers").innerHTML =
+                        "<pre>" + JSON.stringify(data, null, 2) + "</pre>";
+                    log("👥 live_bid_users_response received");
+                });
+
+                socket.on("error", (data) => {
+                    log("❌ Error: " + JSON.stringify(data));
+                });
+            });
+
+            socket.on("disconnect", (reason) => {
+                log("🔌 Disconnected: " + reason);
+            });
+
+            socket.on("connect_error", (err) => {
+                log("❌ Connect Error: " + err.message);
+            });
+        }
+
+        function disconnectSocket() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+        }
+
+        function joinAuction() {
+            if (!socket?.connected) return log("❌ Not connected");
+            const auctionId = document.getElementById("auctionId").value;
+            socket.emit("join_auction", { auction_id: auctionId });
+            log(`🎯 join_auction emitted for auction ${auctionId}`);
+        }
+
+        function requestLiveUsers() {
+            if (!socket?.connected) return log("❌ Not connected");
+            const auctionId = document.getElementById("auctionId").value;
+            socket.emit("live_bid_users", { auction_id: auctionId });
+            log(`📩 live_bid_users emitted for auction ${auctionId}`);
+        }
+
+        async function runTestSequence() {
+            log("🚀 Starting Full Test Sequence...");
+            if (socket?.connected) disconnectSocket();
+
+            connectSocket();
+
+            // Wait for connection
+            let attempts = 0;
+            while (!socket?.connected && attempts < 20) {
+                await new Promise(r => setTimeout(r, 100));
+                attempts++;
+            }
+
+            if (!socket?.connected) {
+                log("❌ Failed to connect, aborting test.");
+                return;
+            }
+
+            await new Promise(r => setTimeout(r, 500));
+            joinAuction();
+
+            await new Promise(r => setTimeout(r, 1000));
+            requestLiveUsers();
+
+            log("✅ Test Sequence Completed");
+        }
+    </script>
+
+</body>
+
+</html>

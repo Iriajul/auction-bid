@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Socket.IO Auction Test</title>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+<h1>Auction Bidding Test</h1>
+<input id="token" placeholder="Paste your JWT access token" style="width: 400px;">
+<input id="auction_id" placeholder="Auction ID (e.g. 5)" style="width: 200px;">
+<button onclick="connectSocket()">Connect</button>
+<button onclick="joinAuction()">Join Auction</button>
+<button onclick="placeBid()">Place Bid</button>
+<br>
+<p>Open browser console (F12) to see logs and real-time updates.</p>
+<script>
+let socket;
+function connectSocket() {
+    const token = document.getElementById('token').value;
+    if (!token) return alert('Enter token first');
+    socket = io('http://10.10.13.10:8000', {
+        transports: ['websocket', 'polling'],
+        auth: { token: token }
+    });
+    socket.on('connect', () => {
+        console.log('✅ Connected to Socket.IO server, sid:', socket.id);
+    });
+    socket.on('connect_error', (err) => {
+        console.error('❌ Connection error:', err.message);
+    });
+    socket.on('joined', (data) => {
+        console.log('✅ Joined auction:', data);
+    });
+    socket.on('auction_state', (data) => {
+        console.log('📊 Auction state:', data);
+    });
+    socket.on('new_bid', (data) => {
+        console.log('💰 New bid received:', data);
+    });
+    socket.on('countdown_update', (data) => {
+        console.log('⏰ Countdown:', data.remaining_seconds, 'seconds');
+    });
+    socket.on('all_countdowns', (data) => {
+        console.log('📡 All countdowns:', data);
+    });
+    socket.on('user_joined', (data) => {
+        console.log('👤 User joined:', data);
+    });
+    socket.on('auction_ended', (data) => {
+        console.log('🏆 Auction ended:', data);
+    });
+    socket.on('live_bid_users_response', (data) => {
+        console.log('👥 Live bid users:', data);
+    });
+    socket.on('error', (data) => {
+        console.error('❌ Error:', data.error);
+    });
+    socket.on('disconnect', () => {
+        console.log('❌ Disconnected from server');
+    });
+}
+function joinAuction() {
+    const auction_id = document.getElementById('auction_id').value;
+    if (!auction_id) return alert('Enter auction_id first');
+    if (!socket || !socket.connected) return alert('Connect first');
+    socket.emit('join_auction', { auction_id: parseInt(auction_id) });
+    console.log('📤 Sent join_auction for auction:', auction_id);
+}
+function placeBid() {
+    const auction_id = document.getElementById('auction_id').value;
+    if (!auction_id) return alert('Enter auction_id first');
+    if (!socket || !socket.connected) return alert('Connect first');
+    socket.emit('place_bid', { auction_id: parseInt(auction_id) });
+    console.log('📤 Sent place_bid for auction:', auction_id);
+}
+</script>
+</body>
+</html>
