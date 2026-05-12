@@ -189,4 +189,6 @@ celeryd.pid
 /static/
 /staticfiles/*.json
 firebase-adminsdk*.json
-mohmt-f7d7c-firebase-adminsdk-fbsvc-859f537833.json
+mohmt-f7d7c-firebase-adminsdk-fbsvc-859f537833.json.env.local
+.env.production
+.env.local
